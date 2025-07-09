@@ -25,6 +25,7 @@ const Profile = () => {
   const { user, isAuthenticated, updateUser } = useAuth();
   const { state } = useCart();
   const navigate = useNavigate();
+
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     name: '',
@@ -33,10 +34,13 @@ const Profile = () => {
     address: '',
     bio: ''
   });
+  const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
+
     if (!isAuthenticated) {
       navigate('/signin');
       return;
@@ -55,6 +59,8 @@ const Profile = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
+    setSuccessMsg('');
+    setErrorMsg('');
   };
 
   const handleCancel = () => {
@@ -66,29 +72,24 @@ const Profile = () => {
       address: user.address || '',
       bio: user.bio || ''
     });
+    setSuccessMsg('');
+    setErrorMsg('');
   };
 
-  const handleSave = () => {
-    // Update user data (in a real app, this would make an API call)
-    updateUser && updateUser(editData);
-    setIsEditing(false);
-    
-    // Show success toast
-    const toast = document.createElement('div');
-    toast.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl shadow-2xl z-50 transition-all duration-300';
-    toast.innerHTML = `
-      <div class="flex items-center gap-2">
-        <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-        <span class="font-medium">Profile updated successfully! ✨</span>
-      </div>
-    `;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.transform = 'translateX(100%)';
-      toast.style.opacity = '0';
-      setTimeout(() => document.body.removeChild(toast), 300);
-    }, 3000);
+  const handleSave = async () => {
+    setSaving(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      if (!updateUser) throw new Error('Update function not implemented');
+      await updateUser(editData);
+      setIsEditing(false);
+      setSuccessMsg('Profile updated successfully!');
+    } catch (error) {
+      setErrorMsg(error.message || 'Failed to update profile.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -109,15 +110,13 @@ const Profile = () => {
   };
 
   const stats = [
-    { icon: Package, label: 'Total Orders', value: state.orders.length, color: 'text-blue-600 bg-blue-100' },
+    { icon: Package, label: 'Total Orders', value: state.orders.length || 0, color: 'text-blue-600 bg-blue-100' },
     { icon: Heart, label: 'Favorite Dishes', value: '12', color: 'text-red-600 bg-red-100' },
     { icon: Star, label: 'Reviews Given', value: '8', color: 'text-yellow-600 bg-yellow-100' },
     { icon: Award, label: 'Loyalty Points', value: '2,450', color: 'text-purple-600 bg-purple-100' }
   ];
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 py-12">
@@ -134,6 +133,18 @@ const Profile = () => {
           <p className="text-gray-600 text-lg">Manage your account and preferences</p>
         </motion.div>
 
+        {errorMsg && (
+          <div className="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-xl text-center">
+            {errorMsg}
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-700 rounded-xl text-center">
+            {successMsg}
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Profile Card */}
           <motion.div
@@ -147,7 +158,11 @@ const Profile = () => {
                 <div className="w-32 h-32 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-full flex items-center justify-center text-white text-4xl font-bold mx-auto shadow-2xl">
                   {getUserInitials(user?.name)}
                 </div>
-                <button className="absolute bottom-2 right-2 w-10 h-10 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors">
+                <button
+                  disabled
+                  className="absolute bottom-2 right-2 w-10 h-10 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors cursor-not-allowed"
+                  title="Profile picture upload not implemented"
+                >
                   <Camera className="w-5 h-5" />
                 </button>
               </div>
@@ -172,6 +187,7 @@ const Profile = () => {
                 <button
                   onClick={handleEdit}
                   className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                  disabled={saving}
                 >
                   <Edit3 className="w-5 h-5" />
                   Edit Profile
@@ -180,14 +196,16 @@ const Profile = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={handleSave}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+                    disabled={saving}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Save className="w-4 h-4" />
-                    Save
+                    {saving ? 'Saving...' : 'Save'}
                   </button>
                   <button
                     onClick={handleCancel}
-                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
+                    disabled={saving}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <X className="w-4 h-4" />
                     Cancel
@@ -247,6 +265,8 @@ const Profile = () => {
                       value={editData.name}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      disabled={saving}
+                      required
                     />
                   ) : (
                     <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-xl">{user?.name || 'Not provided'}</p>
@@ -266,6 +286,8 @@ const Profile = () => {
                       value={editData.email}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      disabled={saving}
+                      required
                     />
                   ) : (
                     <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-xl">{user?.email || 'Not provided'}</p>
@@ -286,6 +308,7 @@ const Profile = () => {
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       placeholder="+977 98-12345678"
+                      disabled={saving}
                     />
                   ) : (
                     <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-xl">{user?.phone || 'Not provided'}</p>
@@ -315,7 +338,8 @@ const Profile = () => {
                     onChange={handleInputChange}
                     rows={3}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                    placeholder="Enter your address in Pokhara..."
+                    placeholder="Enter your address..."
+                    disabled={saving}
                   />
                 ) : (
                   <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-xl">{user?.address || 'Not provided'}</p>
@@ -335,6 +359,7 @@ const Profile = () => {
                     rows={4}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                     placeholder="Tell us about yourself and your food preferences..."
+                    disabled={saving}
                   />
                 ) : (
                   <p className="text-gray-800 bg-gray-50 px-4 py-3 rounded-xl">
