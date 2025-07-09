@@ -4,8 +4,6 @@ import {
   Package, 
   Plus, 
   TrendingUp, 
-  Users, 
-  DollarSign,
   Eye,
   EyeOff,
   BarChart3,
@@ -14,11 +12,13 @@ import {
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import AdminLayout from '../../components/admin/AdminLayout';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const { getDashboardStats } = useAdmin();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchStats();
@@ -89,7 +89,7 @@ const AdminDashboard = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => window.location.href = '/admin/products/add'}
+            onClick={() => navigate('/admin/products/add')}
             className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg"
           >
             <Plus className="w-5 h-5" />
@@ -192,7 +192,7 @@ const AdminDashboard = () => {
           <h3 className="text-xl font-bold text-gray-800 mb-6">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
-              onClick={() => window.location.href = '/admin/products/add'}
+              onClick={() => navigate('/admin/products/add')}
               className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-xl transition-all duration-300 group"
             >
               <Plus className="w-8 h-8 text-blue-600 group-hover:scale-110 transition-transform" />
@@ -201,9 +201,9 @@ const AdminDashboard = () => {
                 <p className="text-gray-600 text-sm">Create a new menu item</p>
               </div>
             </button>
-            
+
             <button
-              onClick={() => window.location.href = '/admin/products'}
+              onClick={() => navigate('/admin/products')}
               className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl transition-all duration-300 group"
             >
               <Package className="w-8 h-8 text-green-600 group-hover:scale-110 transition-transform" />
@@ -212,9 +212,9 @@ const AdminDashboard = () => {
                 <p className="text-gray-600 text-sm">Edit existing items</p>
               </div>
             </button>
-            
+
             <button
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
               className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-xl transition-all duration-300 group"
             >
               <TrendingUp className="w-8 h-8 text-purple-600 group-hover:scale-110 transition-transform" />

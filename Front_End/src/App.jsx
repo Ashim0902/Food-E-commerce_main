@@ -23,6 +23,8 @@ import ProductManagement from "./pages/admin/ProductManagement";
 import AddProduct from "./pages/admin/AddProduct";
 import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute";
 import { Settings } from "lucide-react";
+import Analytics from "./pages/admin/Analytics";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -74,6 +76,22 @@ function App() {
                     element={
                       <ProtectedAdminRoute>
                         <AddProduct />
+                      </ProtectedAdminRoute>
+                    }
+                  />
+                    <Route
+                    path="/admin/analytics"
+                    element={
+                      <ProtectedAdminRoute>
+                        <Analytics />
+                      </ProtectedAdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/settings"
+                    element={
+                      <ProtectedAdminRoute>
+                        <AdminSettings />
                       </ProtectedAdminRoute>
                     }
                   />
