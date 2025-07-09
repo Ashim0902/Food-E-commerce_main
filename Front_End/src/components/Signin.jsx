@@ -11,13 +11,13 @@ const Signin = () => {
     password: ''
   });
   const [error, setError] = useState('');
-  
+
   const { login, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
+
     // Redirect if already authenticated
     if (isAuthenticated) {
       navigate('/');
@@ -27,13 +27,14 @@ const Signin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     const result = await login(formData.email, formData.password);
-    
+
     if (result.success) {
       // Show success toast
       const toast = document.createElement('div');
-      toast.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl shadow-2xl z-50 transition-all duration-300';
+      toast.className =
+        'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl shadow-2xl z-50 transition-all duration-300';
       toast.innerHTML = `
         <div class="flex items-center gap-2">
           <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
@@ -41,13 +42,13 @@ const Signin = () => {
         </div>
       `;
       document.body.appendChild(toast);
-      
+
       setTimeout(() => {
         toast.style.transform = 'translateX(100%)';
         toast.style.opacity = '0';
         setTimeout(() => document.body.removeChild(toast), 300);
       }, 3000);
-      
+
       navigate('/');
     } else {
       setError(result.error);
@@ -59,7 +60,7 @@ const Signin = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError(''); // Clear error when user types
+    setError('');
   };
 
   return (
@@ -183,13 +184,21 @@ const Signin = () => {
           Continue with Google
         </button>
 
-        {/* Sign Up Link */}
-        <p className="text-center text-gray-600 mt-6">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-orange-600 hover:text-orange-700 font-semibold">
-            Sign up
-          </Link>
-        </p>
+        {/* Sign Up & Admin Login Links */}
+        <div className="text-center text-gray-600 mt-6 space-y-2">
+          <p>
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-orange-600 hover:text-orange-700 font-semibold">
+              Sign up
+            </Link>
+          </p>
+          <p>
+            Are you an admin?{' '}
+            <Link to="/admin/login" className="text-red-600 hover:text-red-700 font-semibold">
+              Admin Login
+            </Link>
+          </p>
+        </div>
       </motion.div>
     </div>
   );
