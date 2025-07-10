@@ -143,6 +143,14 @@ const FoodCard = ({
                   <ShoppingCart className="text-white w-8 h-8" />
                 </div>
                 
+                {item.averageRating > 0 && (
+                  <div className="flex items-center gap-1 mt-2">
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <span className="text-sm font-medium text-gray-700">{item.averageRating}</span>
+                    <span className="text-xs text-gray-500">({item.totalReviews})</span>
+                  </div>
+                )}
+                
                 <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Login Required</h3>
                 <p className="text-gray-600 mb-2 text-sm sm:text-base">
                   Please sign in to add <span className="font-semibold text-orange-600">{item.name}</span> to your cart

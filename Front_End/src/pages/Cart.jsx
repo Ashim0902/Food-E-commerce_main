@@ -4,6 +4,7 @@ import { ShoppingCart, Plus, Minus, Trash2, ArrowRight, ShoppingBag, User, MapPi
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import ProductDetailModal from '../components/ProductDetailModal';
 
 const Cart = () => {
   const { state, dispatch } = useCart();
@@ -11,6 +12,8 @@ const Cart = () => {
   const navigate = useNavigate();
   const [showCheckout, setShowCheckout] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showProductModal, setShowProductModal] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
@@ -93,6 +96,16 @@ const Cart = () => {
     setCustomerInfo({ name: '', email: '', phone: '', address: '' });
     setShowCheckout(false);
     navigate('/order');
+  };
+
+  const handleProductClick = (item) => {
+    setSelectedProduct(item);
+    setShowProductModal(true);
+  };
+
+  const closeProductModal = () => {
+    setSelectedProduct(null);
+    setShowProductModal(false);
   };
 
   const handleNavClick = () => {
@@ -213,7 +226,8 @@ const Cart = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20, height: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                      onClick={() => handleProductClick(item)}
                     >
                       <img
                         src={item.img}
@@ -231,13 +245,22 @@ const Cart = () => {
                               {item.category}
                             </span>
                           )}
+                          {item.averageRating > 0 && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-yellow-500">★</span>
+                              <span className="text-sm text-gray-600">{item.averageRating}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between w-full sm:w-auto gap-4">
                         <div className="flex items-center gap-2 sm:gap-3 bg-gray-100 rounded-xl p-1">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateQuantity(item.id, item.quantity - 1);
+                            }}
                             className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white hover:bg-gray-50 flex items-center justify-center transition-colors shadow-sm"
                           >
                             <Minus className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
@@ -246,7 +269,10 @@ const Cart = () => {
                           <span className="w-8 sm:w-12 text-center font-bold text-base sm:text-lg">{item.quantity}</span>
                           
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateQuantity(item.id, item.quantity + 1);
+                            }}
                             className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-colors shadow-sm"
                           >
                             <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -254,7 +280,10 @@ const Cart = () => {
                         </div>
 
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeItem(item.id);
+                          }}
                           className="text-red-500 hover:text-red-600 p-2 sm:p-3 hover:bg-red-50 rounded-xl transition-all duration-200"
                         >
                           <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -514,6 +543,13 @@ const Cart = () => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={showProductModal}
+        onClose={closeProductModal}
+      />
     </div>
   );
 };
