@@ -18,8 +18,10 @@ import {
   Upload,
   Save,
   AlertTriangle,
+  Check,
   X
-}; 
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Settings = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -524,7 +526,7 @@ const Settings = () => {
                     onClick={() => setShowDeleteConfirm(false)}
                     className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4" /> 
                     Cancel
                   </button>
                 </div>
