@@ -5,10 +5,7 @@ const Admin = require('../models/Admin');
 const createDefaultAdmin = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect('mongodb://localhost:27017/nepaliThali', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect('mongodb://localhost:27017/nepaliThali');
 
     console.log('Connected to MongoDB');
 

@@ -16,12 +16,6 @@ import {
   Trash2,
   Download,
   Upload,
-  Save,
-  AlertTriangle,
-  Check,
-  X
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 const Settings = () => {
   const { user, isAuthenticated, logout } = useAuth();

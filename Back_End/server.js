@@ -16,21 +16,12 @@ app.use(express.json());
 
 const JWT_SECRET = 'your_jwt_secret_here'; // change to env var in production
 
-mongoose.connect('mongodb://localhost:27017/nepaliThali', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect('mongodb://localhost:27017/nepaliThali')
 .then(() => console.log('MongoDB connected'))
 .catch(console.error);
 
-// User Schema
-const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
-});
-
-const User = mongoose.model('User', userSchema);
+// Import User model
+const User = require('./models/User');
 
 // Routes
 app.use('/api/admin', adminRoutes);

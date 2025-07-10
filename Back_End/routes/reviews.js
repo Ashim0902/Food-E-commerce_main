@@ -42,7 +42,7 @@ router.get('/product/:productId', async (req, res) => {
 
     // Get rating distribution
     const ratingDistribution = await Review.aggregate([
-      { $match: { productId: require('mongoose').Types.ObjectId(productId) } },
+      { $match: { productId: new require('mongoose').Types.ObjectId(productId) } },
       { $group: { _id: '$rating', count: { $sum: 1 } } },
       { $sort: { _id: -1 } }
     ]);
@@ -224,7 +224,7 @@ router.post('/:reviewId/helpful', authMiddleware, async (req, res) => {
 async function updateProductRating(productId) {
   try {
     const stats = await Review.aggregate([
-      { $match: { productId: require('mongoose').Types.ObjectId(productId) } },
+      { $match: { productId: new require('mongoose').Types.ObjectId(productId) } },
       {
         $group: {
           _id: null,
