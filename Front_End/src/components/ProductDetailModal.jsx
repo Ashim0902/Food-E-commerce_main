@@ -258,7 +258,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
           className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto"
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-3xl">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
             <h2 className="text-2xl font-bold text-gray-800">Product Details</h2>
             <button
               onClick={onClose}

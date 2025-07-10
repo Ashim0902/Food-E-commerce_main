@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search as SearchIcon, Filter, SortAsc } from "lucide-react";
 import { useProducts } from "../context/ProductContext";
 import FoodCard from "../components/FoodCard";
+import ProductDetailModal from "../components/ProductDetailModal";
 
 const Menu = () => {
   const { products, categories, loading, fetchProducts } = useProducts();
@@ -19,7 +20,8 @@ const Menu = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [priceSort, setPriceSort] = useState("");
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showProductModal, setShowProductModal] = useState(false);
 
   // Fetch products when filters change
   useEffect(() => {
@@ -43,10 +45,14 @@ const Menu = () => {
     filteredMenu = filteredMenu.slice().sort((a, b) => b.price - a.price);
   }
 
-  const openModal = (item) => setSelectedItem(item);
-  const closeModal = () => setSelectedItem(null);
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) closeModal();
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setShowProductModal(true);
+  };
+
+  const closeProductModal = () => {
+    setSelectedProduct(null);
+    setShowProductModal(false);
   };
 
   return (
@@ -176,80 +182,19 @@ const Menu = () => {
                 key={item._id}
                 item={item}
                 index={index}
-                onClick={() => openModal(item)}
+                onClick={() => handleProductClick(item)}
               />
             ))
           )}
         </motion.div>
         )}
 
-        {/* Modal */}
-        <AnimatePresence>
-          {selectedItem && (
-            <motion.div
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
-              onClick={handleOverlayClick}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto"
-              >
-                <button
-                  onClick={closeModal}
-                  className="absolute top-4 sm:top-6 right-4 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold hover:text-orange-600 transition-all duration-200 z-10"
-                >
-                  ×
-                </button>
-
-                <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-                  <div className="space-y-4">
-                    <img
-                      src={selectedItem.img}
-                      alt={selectedItem.name}
-                      className="w-full h-64 sm:h-80 object-cover rounded-2xl shadow-lg"
-                    />
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-yellow-500">★★★★★</span>
-                        <span className="text-gray-600 text-sm sm:text-base">(4.5)</span>
-                      </div>
-                      <span className="bg-orange-100 text-orange-600 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                        {selectedItem.category}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col justify-between">
-                    <div className="space-y-4 sm:space-y-6">
-                      <h2 className="text-2xl sm:text-4xl font-bold text-gray-800">
-                        {selectedItem.name}
-                      </h2>
-                      <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                        {selectedItem.description}
-                      </p>
-                      <div className="text-3xl sm:text-4xl font-bold text-orange-600">
-                        Rs. {selectedItem.price}
-                      </div>
-                    </div>
-
-                    <div className="mt-6 sm:mt-8">
-                      <FoodCard 
-                        item={selectedItem} 
-                        showAddToCart={true}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Product Detail Modal */}
+        <ProductDetailModal
+          product={selectedProduct}
+          isOpen={showProductModal}
+          onClose={closeProductModal}
+        />
       </div>
     </div>
   );
