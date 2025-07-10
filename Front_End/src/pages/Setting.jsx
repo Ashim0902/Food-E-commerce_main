@@ -16,6 +16,10 @@ import {
   Trash2,
   Download,
   Upload,
+  Save,
+  AlertTriangle,
+  X
+}; 
 
 const Settings = () => {
   const { user, isAuthenticated, logout } = useAuth();
