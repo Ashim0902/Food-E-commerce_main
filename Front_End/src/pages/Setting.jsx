@@ -24,7 +24,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 
 const Settings = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, changePassword } = useAuth();
   const navigate = useNavigate();
   
   // Settings state
@@ -109,25 +109,34 @@ const Settings = () => {
       return;
     }
     
-    // In a real app, this would update password via API
-    setShowPasswordChange(false);
-    setPasswordData({ current: '', new: '', confirm: '' });
-    
-    const toast = document.createElement('div');
-    toast.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl shadow-2xl z-50 transition-all duration-300';
-    toast.innerHTML = `
-      <div class="flex items-center gap-2">
-        <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-        <span class="font-medium">Password updated successfully! 🔒</span>
-      </div>
-    `;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.transform = 'translateX(100%)';
-      toast.style.opacity = '0';
-      setTimeout(() => document.body.removeChild(toast), 300);
-    }, 3000);
+    try {
+      const result = await changePassword(passwordData.current, passwordData.new);
+      
+      if (result.success) {
+        setShowPasswordChange(false);
+        setPasswordData({ current: '', new: '', confirm: '' });
+        
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl shadow-2xl z-50 transition-all duration-300';
+        toast.innerHTML = `
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            <span class="font-medium">Password updated successfully! 🔒</span>
+          </div>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.style.transform = 'translateX(100%)';
+          toast.style.opacity = '0';
+          setTimeout(() => document.body.removeChild(toast), 300);
+        }, 3000);
+      } else {
+        alert(result.error || 'Failed to change password');
+      }
+    } catch (error) {
+      alert('Failed to change password');
+    }
   };
 
   const handleDeleteAccount = () => {

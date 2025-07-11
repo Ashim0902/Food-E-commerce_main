@@ -81,10 +81,14 @@ const Profile = () => {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      // In a real app, this would call the API to update user data
-      // For now, we'll just simulate success
+      const result = await updateUser(editData);
+      
+      if (result.success) {
+        setSuccessMsg('Profile updated successfully!');
+      } else {
+        setErrorMsg(result.error || 'Failed to update profile.');
+      }
       setIsEditing(false);
-      setSuccessMsg('Profile updated successfully!');
     } catch (error) {
       setErrorMsg(error.message || 'Failed to update profile.');
     } finally {
