@@ -70,6 +70,16 @@ const Body = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setShowProductModal(true);
+  };
+
+  const closeProductModal = () => {
+    setSelectedProduct(null);
+    setShowProductModal(false);
+  };
+
   let filteredItems = products.filter((item) =>
     item.name.toLowerCase().includes(searchQuery)
   );
@@ -285,7 +295,12 @@ const Body = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 justify-items-center">
             {topItems.map((item, i) => (
-              <FoodCard key={item._id} item={item} index={i} />
+              <FoodCard 
+                key={item._id} 
+                item={item} 
+                index={i} 
+                onClick={() => handleProductClick(item)}
+              />
             ))}
           </div>
           
@@ -307,6 +322,9 @@ const Body = () => {
         (category) => {
           const items = categorizedItems(category);
           if (items.length === 0) return null;
+          
+          const visibleItems = items.slice(0, visibleCount[category] || initialVisible);
+          
           return (
             <motion.section
               key={category}
@@ -322,14 +340,17 @@ const Body = () => {
               </h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 justify-items-center">
-                {items
-                  <FoodCard key={item._id} item={item} index={i} onClick={() => handleProductClick(item)} />
-                  .map((item, idx) => (
-                    <FoodCard key={item._id} item={item} index={idx} onClick={() => handleProductClick(item)} />
-                  ))}
+                {visibleItems.map((item, idx) => (
+                  <FoodCard 
+                    key={item._id} 
+                    item={item} 
+                    index={idx} 
+                    onClick={() => handleProductClick(item)} 
+                  />
+                ))}
               </div>
               
-              {visibleCount[category] < items.length && (
+              {(visibleCount[category] || initialVisible) < items.length && (
                 <div className="flex justify-center mt-8 sm:mt-12">
                   <button
                     disabled={loadingCategory === category}
@@ -364,16 +385,6 @@ const Body = () => {
       />
     </div>
   );
-};
-
-const handleProductClick = (product) => {
-  setSelectedProduct(product);
-  setShowProductModal(true);
-};
-
-const closeProductModal = () => {
-  setSelectedProduct(null);
-  setShowProductModal(false);
 };
 
 export default Body;
