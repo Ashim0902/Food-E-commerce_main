@@ -9,6 +9,7 @@ const Admin = require('./models/Admin');
 const adminRoutes = require('./routes/admin');
 const productRoutes = require('./routes/products');
 const reviewRoutes = require('./routes/reviews');
+const contactRoutes = require('./routes/contact');
 
 const app = express();
 app.use(cors());
@@ -27,6 +28,7 @@ const User = require('./models/User');
 app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Signup Route
 app.post('/api/signup', async (req, res) => {

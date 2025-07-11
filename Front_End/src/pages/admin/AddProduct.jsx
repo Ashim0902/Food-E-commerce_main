@@ -14,8 +14,21 @@ const AddProduct = () => {
     description: '',
     price: '',
     category: '',
-    img: ''
+    img: '',
+    ingredients: [],
+    allergens: [],
+    nutritionInfo: {
+      calories: '',
+      protein: '',
+      carbs: '',
+      fat: '',
+      fiber: ''
+    },
+    preparationTime: '',
+    spiceLevel: 'Medium'
   });
+  const [newIngredient, setNewIngredient] = useState('');
+  const [newAllergen, setNewAllergen] = useState('');
 
   const categories = [
     'Staple Food', 'Snacks', 'Soups', 'Curries', 'Meat Dishes',
@@ -64,6 +77,50 @@ const AddProduct = () => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    });
+  };
+
+  const handleNutritionChange = (e) => {
+    setFormData({
+      ...formData,
+      nutritionInfo: {
+        ...formData.nutritionInfo,
+        [e.target.name]: e.target.value
+      }
+    });
+  };
+
+  const addIngredient = () => {
+    if (newIngredient.trim()) {
+      setFormData({
+        ...formData,
+        ingredients: [...formData.ingredients, newIngredient.trim()]
+      });
+      setNewIngredient('');
+    }
+  };
+
+  const removeIngredient = (index) => {
+    setFormData({
+      ...formData,
+      ingredients: formData.ingredients.filter((_, i) => i !== index)
+    });
+  };
+
+  const addAllergen = () => {
+    if (newAllergen.trim()) {
+      setFormData({
+        ...formData,
+        allergens: [...formData.allergens, newAllergen.trim()]
+      });
+      setNewAllergen('');
+    }
+  };
+
+  const removeAllergen = (index) => {
+    setFormData({
+      ...formData,
+      allergens: formData.allergens.filter((_, i) => i !== index)
     });
   };
 
@@ -164,6 +221,149 @@ const AddProduct = () => {
                 </div>
               </div>
 
+              {/* Preparation Time and Spice Level */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Preparation Time (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    name="preparationTime"
+                    value={formData.preparationTime}
+                    onChange={handleChange}
+                    min="0"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="30"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Spice Level
+                  </label>
+                  <select
+                    name="spiceLevel"
+                    value={formData.spiceLevel}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="Mild">🌶️ Mild</option>
+                    <option value="Medium">🌶️🌶️ Medium</option>
+                    <option value="Hot">🌶️🌶️🌶️ Hot</option>
+                    <option value="Very Hot">🌶️🌶️🌶️🌶️ Very Hot</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Ingredients */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ingredients
+                </label>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={newIngredient}
+                    onChange={(e) => setNewIngredient(e.target.value)}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Add ingredient"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addIngredient())}
+                  />
+                  <button
+                    type="button"
+                    onClick={addIngredient}
+                    className="px-4 py-3 bg-purple-500 text-white rounded-xl hover:bg-purple-600 transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.ingredients.map((ingredient, index) => (
+                    <span
+                      key={index}
+                      className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                    >
+                      {ingredient}
+                      <button
+                        type="button"
+                        onClick={() => removeIngredient(index)}
+                        className="text-purple-500 hover:text-purple-700"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Allergens */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Allergens
+                </label>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    value={newAllergen}
+                    onChange={(e) => setNewAllergen(e.target.value)}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Add allergen (e.g., Nuts, Dairy)"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAllergen())}
+                  />
+                  <button
+                    type="button"
+                    onClick={addAllergen}
+                    className="px-4 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.allergens.map((allergen, index) => (
+                    <span
+                      key={index}
+                      className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                    >
+                      ⚠️ {allergen}
+                      <button
+                        type="button"
+                        onClick={() => removeAllergen(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Nutrition Information */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Nutrition Information (per serving)
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {Object.entries(formData.nutritionInfo).map(([key, value]) => (
+                    <div key={key}>
+                      <label className="block text-xs text-gray-600 mb-1 capitalize">
+                        {key} {key === 'calories' ? '(kcal)' : '(g)'}
+                      </label>
+                      <input
+                        type="number"
+                        name={key}
+                        value={value}
+                        onChange={handleNutritionChange}
+                        min="0"
+                        step="0.1"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                        placeholder="0"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Image URL */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -258,6 +458,27 @@ const AddProduct = () => {
                     {formData.description || 'Product description will appear here...'}
                   </p>
                   
+                  {/* Additional Info in Preview */}
+                  <div className="space-y-2 mb-3">
+                    {formData.preparationTime && (
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <span>⏱️ {formData.preparationTime} min</span>
+                      </div>
+                    )}
+                    {formData.spiceLevel && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className={`px-2 py-1 rounded-full ${
+                          formData.spiceLevel === 'Mild' ? 'bg-green-100 text-green-600' :
+                          formData.spiceLevel === 'Medium' ? 'bg-yellow-100 text-yellow-600' :
+                          formData.spiceLevel === 'Hot' ? 'bg-orange-100 text-orange-600' :
+                          'bg-red-100 text-red-600'
+                        }`}>
+                          🌶️ {formData.spiceLevel}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="flex justify-between items-center">
                     <span className="text-2xl font-bold text-purple-600">
                       Rs. {formData.price || '0'}
@@ -278,6 +499,8 @@ const AddProduct = () => {
                 <li>• Write descriptive, mouth-watering descriptions</li>
                 <li>• Set competitive pricing</li>
                 <li>• Choose the most appropriate category</li>
+                <li>• Add detailed ingredients and allergen information</li>
+                <li>• Include accurate nutrition information</li>
               </ul>
             </div>
           </motion.div>

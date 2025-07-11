@@ -297,6 +297,16 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                     <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm font-medium">
                       {product.category}
                     </span>
+                    {product.spiceLevel && (
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        product.spiceLevel === 'Mild' ? 'bg-green-100 text-green-600' :
+                        product.spiceLevel === 'Medium' ? 'bg-yellow-100 text-yellow-600' :
+                        product.spiceLevel === 'Hot' ? 'bg-orange-100 text-orange-600' :
+                        'bg-red-100 text-red-600'
+                      }`}>
+                        🌶️ {product.spiceLevel}
+                      </span>
+                    )}
                     {product.averageRating > 0 && (
                       <div className="flex items-center gap-1">
                         {renderStars(Math.round(product.averageRating))}
@@ -313,6 +323,63 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                 <div className="text-4xl font-bold text-orange-600">
                   Rs. {product.price}
                 </div>
+
+                {/* Additional Product Info */}
+                {(product.preparationTime || product.ingredients?.length > 0 || product.allergens?.length > 0) && (
+                  <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+                    {product.preparationTime && (
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-gray-600" />
+                        <span className="text-gray-700">Prep time: {product.preparationTime} minutes</span>
+                      </div>
+                    )}
+                    
+                    {product.ingredients?.length > 0 && (
+                      <div>
+                        <h5 className="font-semibold text-gray-800 mb-2">Ingredients:</h5>
+                        <div className="flex flex-wrap gap-2">
+                          {product.ingredients.map((ingredient, index) => (
+                            <span key={index} className="bg-white px-2 py-1 rounded-lg text-sm text-gray-600 border">
+                              {ingredient}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {product.allergens?.length > 0 && (
+                      <div>
+                        <h5 className="font-semibold text-gray-800 mb-2 text-red-600">⚠️ Allergens:</h5>
+                        <div className="flex flex-wrap gap-2">
+                          {product.allergens.map((allergen, index) => (
+                            <span key={index} className="bg-red-100 text-red-600 px-2 py-1 rounded-lg text-sm border border-red-200">
+                              {allergen}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Nutrition Info */}
+                {product.nutritionInfo && Object.keys(product.nutritionInfo).length > 0 && (
+                  <div className="bg-blue-50 rounded-2xl p-4">
+                    <h5 className="font-semibold text-gray-800 mb-3">Nutrition Information (per serving):</h5>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      {Object.entries(product.nutritionInfo).map(([key, value]) => (
+                        value > 0 && (
+                          <div key={key} className="flex justify-between">
+                            <span className="text-gray-600 capitalize">{key}:</span>
+                            <span className="font-medium text-gray-800">
+                              {value}{key === 'calories' ? ' kcal' : 'g'}
+                            </span>
+                          </div>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Quantity Selector */}
                 <div className="space-y-4">

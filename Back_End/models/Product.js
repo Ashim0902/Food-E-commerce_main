@@ -53,6 +53,30 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  ingredients: [{
+    type: String,
+    trim: true
+  }],
+  allergens: [{
+    type: String,
+    trim: true
+  }],
+  nutritionInfo: {
+    calories: { type: Number, min: 0 },
+    protein: { type: Number, min: 0 },
+    carbs: { type: Number, min: 0 },
+    fat: { type: Number, min: 0 },
+    fiber: { type: Number, min: 0 }
+  },
+  preparationTime: {
+    type: Number, // in minutes
+    min: 0
+  },
+  spiceLevel: {
+    type: String,
+    enum: ['Mild', 'Medium', 'Hot', 'Very Hot'],
+    default: 'Medium'
+  },
   createdAt: {
     type: Date,
     default: Date.now

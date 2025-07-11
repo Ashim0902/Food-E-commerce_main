@@ -104,7 +104,18 @@ router.get('/products', adminAuth, async (req, res) => {
 // Add new product
 router.post('/products', adminAuth, async (req, res) => {
   try {
-    const { name, description, price, category, img } = req.body;
+    const { 
+      name, 
+      description, 
+      price, 
+      category, 
+      img, 
+      ingredients, 
+      allergens, 
+      nutritionInfo, 
+      preparationTime, 
+      spiceLevel 
+    } = req.body;
 
     if (!name || !description || !price || !category || !img) {
       return res.status(400).json({ error: 'All fields are required' });
@@ -119,7 +130,12 @@ router.post('/products', adminAuth, async (req, res) => {
       description: description.trim(),
       price: Number(price),
       category,
-      img
+      img,
+      ingredients: ingredients || [],
+      allergens: allergens || [],
+      nutritionInfo: nutritionInfo || {},
+      preparationTime: preparationTime || null,
+      spiceLevel: spiceLevel || 'Medium'
     });
 
     await product.save();
@@ -142,7 +158,7 @@ router.post('/products', adminAuth, async (req, res) => {
 router.put('/products/:id', adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, category, img, isActive } = req.body;
+    const { name, description, price, category, img, isActive, ingredients, allergens, nutritionInfo, preparationTime, spiceLevel } = req.body;
 
     const updateData = {};
     if (name !== undefined) updateData.name = name.trim();
@@ -151,6 +167,11 @@ router.put('/products/:id', adminAuth, async (req, res) => {
     if (category !== undefined) updateData.category = category;
     if (img !== undefined) updateData.img = img;
     if (isActive !== undefined) updateData.isActive = isActive;
+    if (ingredients !== undefined) updateData.ingredients = ingredients;
+    if (allergens !== undefined) updateData.allergens = allergens;
+    if (nutritionInfo !== undefined) updateData.nutritionInfo = nutritionInfo;
+    if (preparationTime !== undefined) updateData.preparationTime = preparationTime;
+    if (spiceLevel !== undefined) updateData.spiceLevel = spiceLevel;
 
     const product = await Product.findByIdAndUpdate(
       id,

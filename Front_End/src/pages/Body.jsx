@@ -4,6 +4,7 @@ import { ShoppingBag, ArrowRight, Search as SearchIcon, Star, Clock, Truck } fro
 import { motion } from "framer-motion";
 import { useProducts } from "../context/ProductContext";
 import FoodCard from "../components/FoodCard";
+import ProductDetailModal from "../components/ProductDetailModal";
 
 // Enhanced loading spinner
 const FoodSpinner = () => (
@@ -38,6 +39,8 @@ const Body = () => {
   const searchQuery = searchParams.get("q")?.toLowerCase() || "";
   const sortOption = searchParams.get("sort") || "match";
   const navigate = useNavigate();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showProductModal, setShowProductModal] = useState(false);
 
   // Update visible count when categories change
   useEffect(() => {
@@ -320,9 +323,9 @@ const Body = () => {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 justify-items-center">
                 {items
-                  .slice(0, visibleCount[category] || initialVisible)
+                  <FoodCard key={item._id} item={item} index={i} onClick={() => handleProductClick(item)} />
                   .map((item, idx) => (
-                    <FoodCard key={item._id} item={item} index={idx} />
+                    <FoodCard key={item._id} item={item} index={idx} onClick={() => handleProductClick(item)} />
                   ))}
               </div>
               
@@ -352,8 +355,25 @@ const Body = () => {
           );
         }
       )}
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={showProductModal}
+        onClose={closeProductModal}
+      />
     </div>
   );
+};
+
+const handleProductClick = (product) => {
+  setSelectedProduct(product);
+  setShowProductModal(true);
+};
+
+const closeProductModal = () => {
+  setSelectedProduct(null);
+  setShowProductModal(false);
 };
 
 export default Body;
