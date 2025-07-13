@@ -74,8 +74,7 @@ userSchema.pre('save', function(next) {
   next();
 });
 
-// Index for better query performance
-userSchema.index({ email: 1 });
+// Index for better query performance (remove duplicate)
 userSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Review = require('../models/Review');
 const Product = require('../models/Product');
 const User = require('../models/User');
@@ -27,22 +28,27 @@ router.get('/product/:productId', async (req, res) => {
     const { productId } = req.params;
     const { page = 1, limit = 10, sort = 'newest' } = req.query;
 
+    // Validate productId
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ error: 'Invalid product ID' });
+    }
+
     let sortObj = { createdAt: -1 }; // Default: newest first
     if (sort === 'oldest') sortObj = { createdAt: 1 };
     else if (sort === 'highest') sortObj = { rating: -1 };
     else if (sort === 'lowest') sortObj = { rating: 1 };
     else if (sort === 'helpful') sortObj = { helpful: -1 };
 
-    const reviews = await Review.find({ productId })
+    const reviews = await Review.find({ productId: new mongoose.Types.ObjectId(productId) })
       .sort(sortObj)
       .limit(limit * 1)
       .skip((page - 1) * limit);
 
-    const total = await Review.countDocuments({ productId });
+    const total = await Review.countDocuments({ productId: new mongoose.Types.ObjectId(productId) });
 
     // Get rating distribution
     const ratingDistribution = await Review.aggregate([
-      { $match: { productId: new require('mongoose').Types.ObjectId(productId) } },
+      { $match: { productId: new mongoose.Types.ObjectId(productId) } },
       { $group: { _id: '$rating', count: { $sum: 1 } } },
       { $sort: { _id: -1 } }
     ]);
@@ -66,6 +72,11 @@ router.post('/product/:productId', authMiddleware, async (req, res) => {
     const { productId } = req.params;
     const { rating, comment } = req.body;
 
+    // Validate productId
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ error: 'Invalid product ID' });
+    }
+
     if (!rating || !comment) {
       return res.status(400).json({ error: 'Rating and comment are required' });
     }
@@ -88,7 +99,7 @@ router.post('/product/:productId', authMiddleware, async (req, res) => {
 
     // Check if user already reviewed this product
     const existingReview = await Review.findOne({ 
-      productId, 
+      productId: new mongoose.Types.ObjectId(productId), 
       userId: req.user.id 
     });
 
@@ -98,7 +109,7 @@ router.post('/product/:productId', authMiddleware, async (req, res) => {
 
     // Create review
     const review = new Review({
-      productId,
+      productId: new mongoose.Types.ObjectId(productId),
       userId: req.user.id,
       userName: user.name,
       userEmail: user.email,
@@ -130,6 +141,10 @@ router.put('/:reviewId', authMiddleware, async (req, res) => {
   try {
     const { reviewId } = req.params;
     const { rating, comment } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
 
     if (!rating || !comment) {
       return res.status(400).json({ error: 'Rating and comment are required' });
@@ -171,6 +186,10 @@ router.delete('/:reviewId', authMiddleware, async (req, res) => {
   try {
     const { reviewId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
+
     const review = await Review.findOne({ 
       _id: reviewId, 
       userId: req.user.id 
@@ -201,6 +220,10 @@ router.post('/:reviewId/helpful', authMiddleware, async (req, res) => {
   try {
     const { reviewId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID' });
+    }
+
     const review = await Review.findById(reviewId);
     if (!review) {
       return res.status(404).json({ error: 'Review not found' });
@@ -224,7 +247,7 @@ router.post('/:reviewId/helpful', authMiddleware, async (req, res) => {
 async function updateProductRating(productId) {
   try {
     const stats = await Review.aggregate([
-      { $match: { productId: new require('mongoose').Types.ObjectId(productId) } },
+      { $match: { productId: new mongoose.Types.ObjectId(productId) } },
       {
         $group: {
           _id: null,

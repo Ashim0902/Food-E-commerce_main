@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const Product = require('../models/Product');
@@ -36,6 +37,10 @@ router.post('/', authMiddleware, async (req, res) => {
 
     // Validate products exist
     for (const item of items) {
+      if (!mongoose.Types.ObjectId.isValid(item.productId)) {
+        return res.status(400).json({ error: `Invalid product ID for ${item.name}` });
+      }
+      
       const product = await Product.findById(item.productId);
       if (!product) {
         return res.status(400).json({ error: `Product ${item.name} not found` });
@@ -44,9 +49,12 @@ router.post('/', authMiddleware, async (req, res) => {
 
     const order = new Order({
       orderId,
-      userId: req.user.id,
+      userId: new mongoose.Types.ObjectId(req.user.id),
       customerInfo,
-      items,
+      items: items.map(item => ({
+        ...item,
+        productId: new mongoose.Types.ObjectId(item.productId)
+      })),
       subtotal,
       deliveryFee: deliveryFee || 50,
       serviceCharge,
@@ -73,13 +81,13 @@ router.get('/user', authMiddleware, async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
 
-    const orders = await Order.find({ userId: req.user.id })
+    const orders = await Order.find({ userId: new mongoose.Types.ObjectId(req.user.id) })
       .populate('items.productId', 'name img category')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
 
-    const total = await Order.countDocuments({ userId: req.user.id });
+    const total = await Order.countDocuments({ userId: new mongoose.Types.ObjectId(req.user.id) });
 
     res.json({
       orders,
@@ -98,7 +106,7 @@ router.get('/:orderId', authMiddleware, async (req, res) => {
   try {
     const order = await Order.findOne({ 
       orderId: req.params.orderId,
-      userId: req.user.id 
+      userId: new mongoose.Types.ObjectId(req.user.id) 
     }).populate('items.productId', 'name img category');
 
     if (!order) {
@@ -158,7 +166,7 @@ router.put('/admin/:orderId/accept', adminAuth, async (req, res) => {
 
     order.isAccepted = true;
     order.acceptedAt = new Date();
-    order.acceptedBy = req.admin._id;
+    order.acceptedBy = new mongoose.Types.ObjectId(req.admin._id);
     order.status = 'confirmed';
     
     await order.save();
