@@ -24,6 +24,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ProductManagement from "./pages/admin/ProductManagement";
 import AddProduct from "./pages/admin/AddProduct";
+import OrderManagement from "./pages/admin/OrderManagement";
 import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute";
 import Analytics from "./pages/admin/Analytics";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -64,6 +65,14 @@ function AppRoutes() {
         element={
           <ProtectedAdminRoute>
             <AddProduct />
+          </ProtectedAdminRoute>
+        }
+      />
+      <Route
+        path="/admin/orders"
+        element={
+          <ProtectedAdminRoute>
+            <OrderManagement />
           </ProtectedAdminRoute>
         }
       />

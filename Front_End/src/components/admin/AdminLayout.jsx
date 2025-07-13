@@ -11,7 +11,8 @@ import {
   Shield,
   Home,
   Settings,
-  BarChart3
+  BarChart3,
+  ShoppingBag
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 
@@ -25,6 +26,7 @@ const AdminLayout = ({ children }) => {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
     { icon: Package, label: 'Products', path: '/admin/products' },
     { icon: Plus, label: 'Add Product', path: '/admin/products/add' },
+    { icon: ShoppingBag, label: 'Orders', path: '/admin/orders' },
     { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' }
   ];

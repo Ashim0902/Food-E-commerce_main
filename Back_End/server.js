@@ -10,6 +10,7 @@ const adminRoutes = require('./routes/admin');
 const productRoutes = require('./routes/products');
 const reviewRoutes = require('./routes/reviews');
 const contactRoutes = require('./routes/contact');
+const orderRoutes = require('./routes/orders');
 
 const app = express();
 app.use(cors());
@@ -29,6 +30,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Signup Route
 app.post('/api/signup', async (req, res) => {

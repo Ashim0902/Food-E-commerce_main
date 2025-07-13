@@ -149,6 +149,58 @@ export const AdminProvider = ({ children }) => {
     }
   };
 
+  // Order management functions
+  const getOrders = async (filters = {}) => {
+    try {
+      const queryParams = new URLSearchParams(filters);
+      const res = await fetch(`http://localhost:5000/api/orders/admin/all?${queryParams}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return await res.json();
+    } catch (error) {
+      throw new Error('Failed to fetch orders');
+    }
+  };
+
+  const acceptOrder = async (orderId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/admin/${orderId}/accept`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return await res.json();
+    } catch (error) {
+      throw new Error('Failed to accept order');
+    }
+  };
+
+  const updateOrderStatus = async (orderId, status) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/admin/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+      return await res.json();
+    } catch (error) {
+      throw new Error('Failed to update order status');
+    }
+  };
+
+  const getOrderStats = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/admin/stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return await res.json();
+    } catch (error) {
+      throw new Error('Failed to fetch order stats');
+    }
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -162,7 +214,11 @@ export const AdminProvider = ({ children }) => {
         addProduct,
         updateProduct,
         deleteProduct,
-        getDashboardStats
+        getDashboardStats,
+        getOrders,
+        acceptOrder,
+        updateOrderStatus,
+        getOrderStats
       }}
     >
       {children}

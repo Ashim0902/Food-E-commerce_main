@@ -102,7 +102,7 @@ const Settings = () => {
     }, 3000);
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (passwordData.new !== passwordData.confirm) {
       alert('New passwords do not match!');

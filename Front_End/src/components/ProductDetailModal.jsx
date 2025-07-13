@@ -14,10 +14,13 @@ import {
   ChevronDown,
   User,
   Calendar,
-  CheckCircle
+  CheckCircle,
+  Maximize2,
+  ArrowRight
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const ProductDetailModal = ({ product, isOpen, onClose }) => {
   const { dispatch } = useCart();
@@ -36,6 +39,8 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
     rating: 'all'
   });
   const [userReview, setUserReview] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   useEffect(() => {
     if (isOpen && product) {
@@ -87,6 +92,11 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
   };
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      setShowLoginPopup(true);
+      return;
+    }
+
     const cartItem = {
       ...product,
       id: product._id,
@@ -239,6 +249,10 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
     });
   };
 
+  const closeLoginPopup = () => {
+    setShowLoginPopup(false);
+  };
+
   if (!isOpen || !product) return null;
 
   return (
@@ -247,7 +261,9 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4 ${
+          isFullscreen ? 'p-0' : ''
+        }`}
         onClick={onClose}
       >
         <motion.div
@@ -255,17 +271,29 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto"
+          className={`bg-white shadow-2xl overflow-y-auto ${
+            isFullscreen 
+              ? 'w-full h-full rounded-none' 
+              : 'rounded-3xl w-full max-w-6xl max-h-[90vh]'
+          }`}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
             <h2 className="text-2xl font-bold text-gray-800">Product Details</h2>
-            <button
-              onClick={onClose}
-              className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
-            >
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+              >
+                <Maximize2 className="w-5 h-5 text-gray-600" />
+              </button>
+              <button
+                onClick={onClose}
+                className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
           </div>
 
           <div className="p-6">
@@ -599,6 +627,71 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Login Required Popup */}
+      <AnimatePresence>
+        {showLoginPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+            onClick={closeLoginPopup}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 sm:p-8 relative"
+            >
+              <button
+                onClick={closeLoginPopup}
+                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
+                  <ShoppingCart className="text-white w-8 h-8" />
+                </div>
+                
+                <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Login Required</h3>
+                <p className="text-gray-600 mb-2 text-sm sm:text-base">
+                  Please sign in to add <span className="font-semibold text-orange-600">{product.name}</span> to your cart
+                </p>
+                <p className="text-gray-500 text-xs sm:text-sm mb-8">
+                  Join thousands of food lovers enjoying authentic Nepali cuisine!
+                </p>
+
+                <div className="space-y-3 sm:space-y-4">
+                  <Link
+                    to="/signin"
+                    onClick={closeLoginPopup}
+                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-3 sm:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base"
+                  >
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                    Sign In
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </Link>
+                  
+                  <p className="text-gray-600 text-xs sm:text-sm">
+                    Don't have an account?{' '}
+                    <Link 
+                      to="/signup" 
+                      onClick={closeLoginPopup}
+                      className="text-orange-600 hover:text-orange-700 font-semibold"
+                    >
+                      Sign up here
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AnimatePresence>
   );
 };

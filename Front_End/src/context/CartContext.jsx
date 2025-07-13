@@ -67,10 +67,48 @@ const cartReducer = (state, action) => {
     
     case 'PLACE_ORDER': {
       const { customerInfo } = action.payload;
-      const orderId = Date.now().toString();
+      const orderId = 'ORD-' + Date.now().toString();
       const deliveryFee = 50;
       const serviceCharge = Math.round(state.total * 0.1);
       const finalTotal = state.total + deliveryFee + serviceCharge;
+      
+      // Prepare order data for backend
+      const orderData = {
+        customerInfo,
+        items: state.items.map(item => ({
+          productId: item._id || item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          img: item.img
+        })),
+        subtotal: state.total,
+        deliveryFee,
+        serviceCharge,
+        total: finalTotal
+      };
+
+      // Send order to backend
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetch('http://localhost:5000/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            console.log('Order placed successfully:', data.order);
+          }
+        })
+        .catch(error => {
+          console.error('Error placing order:', error);
+        });
+      }
       
       const newOrder = {
         id: orderId,
@@ -82,7 +120,7 @@ const cartReducer = (state, action) => {
         total: finalTotal,
         status: 'confirmed',
         orderDate: new Date().toISOString(),
-        estimatedDelivery: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutes from now
+        estimatedDelivery: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
         paymentMethod: customerInfo.paymentMethod || 'cod',
       };
       
